@@ -1,35 +1,42 @@
-import { useEffect } from 'react';
-import { FilterControls } from '@/components/FilterControls';
-import { ProductGrid } from '@/components/ProductGrid';
-import { useStore } from '@/store/useStore';
-import { fetchProducts } from '@/services/api';
+import { useEffect } from "react";
+import { FilterControls } from "@/components/FilterControls";
+import { ProductGrid } from "@/components/ProductGrid";
+import { useAppDispatch } from "@/store/hooks";
+import {
+  setProducts,
+  setLoading,
+  setError,
+} from "@/store/slices/productsSlice";
+import { fetchProducts } from "@/services/api";
 
 const Index = () => {
-  const { setProducts, setLoading, setError } = useStore();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        dispatch(setLoading(true));
+        dispatch(setError(null));
         const products = await fetchProducts();
-        setProducts(products);
+        dispatch(setProducts(products));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load products');
+        dispatch(
+          setError(
+            err instanceof Error ? err.message : "Failed to load products"
+          )
+        );
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     };
 
     loadProducts();
-  }, [setProducts, setLoading, setError]);
+  }, [dispatch]);
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      
-
+    <main className='container mx-auto px-4 py-8'>
       {/* Filters */}
-      <section className="mb-8">
+      <section className='mb-8'>
         <FilterControls />
       </section>
 
