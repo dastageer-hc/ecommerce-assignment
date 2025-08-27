@@ -1,31 +1,33 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import productsReducer from './slices/productsSlice';
-import cartReducer from './slices/cartSlice';
-import filtersReducer from './slices/filtersSlice';
-import themeReducer from './slices/themeSlice';
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import productsReducer from "./slices/productsSlice.js";
+import cartReducer from "./slices/cartSlice.js";
+import filtersReducer from "./slices/filtersSlice.js";
+import themeReducer from "./slices/themeSlice.js";
+
+const rootReducer = combineReducers({
+  products: productsReducer,
+  cart: cartReducer,
+  filters: filtersReducer,
+  theme: themeReducer,
+});
 
 const persistConfig = {
-  key: 'ecommerce-store',
-  storage,
-  whitelist: ['cart', 'theme'], // Only persist cart and theme
+  key: "ecommerce-store",
+  storage, // This uses localStorage by default
+  whitelist: ["cart", "theme"], // Only persist cart and theme
+  debug: true, // Enable debug logging to see localStorage operations
 };
 
-const persistedCartReducer = persistReducer(persistConfig, cartReducer);
-const persistedThemeReducer = persistReducer(persistConfig, themeReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    products: productsReducer,
-    cart: persistedCartReducer,
-    filters: filtersReducer,
-    theme: persistedThemeReducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
     }),
 });
